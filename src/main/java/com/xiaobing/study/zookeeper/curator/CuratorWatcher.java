@@ -26,6 +26,9 @@ public class CuratorWatcher {
 	private static String zkpath = "/zkpathtest";
 
 	public CuratorWatcher() {
+		
+		System.out.println("in watcher branch!!!");
+		
 		// 设置重连策略
 		RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 5);
 
