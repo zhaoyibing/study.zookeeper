@@ -35,7 +35,7 @@ public class ZkClient2 implements Watcher{
 	// 信号量，用于阻塞主线程等待客户端连接zookeeper服务成功后通知主线程往下继续执行 
 	private CountDownLatch countDownLactch = new CountDownLatch(1);
 	
-	private String log_main = "【main】:";
+	private String log_main = "【main】 : ";
 	
 	public ZkClient2() {
 	}
