@@ -4,6 +4,7 @@ import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.imps.CuratorFrameworkState;
+import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.NodeCache;
 import org.apache.curator.framework.recipes.cache.NodeCacheListener;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
@@ -83,7 +84,16 @@ public class CuratorWatcher {
 		PathChildrenCache pathChildrenCache = new PathChildrenCache(client, zkpath, true);
 		pathChildrenCache.getListenable().addListener(new PathChildrenCacheListener() {
 			public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
-				System.out.println("PathChildrenCache listener working... event is " + event);
+				ChildData data = event.getData();
+				if (data == null) {
+					System.out.println("PathChildrenCache: No data in event[" + event + "]");
+				}else {
+					 System.out.println("PathChildrenCache: Receive event: "
+		                        + "type=[" + event.getType() + "]"
+		                        + ", path=[" + data.getPath() + "]"
+		                        + ", data=[" + new String(data.getData()) + "]"
+		                        + ", stat=[" + data.getStat() + "]");
+				}
 			}
 		});
 		pathChildrenCache.start(StartMode.BUILD_INITIAL_CACHE);
@@ -97,7 +107,11 @@ public class CuratorWatcher {
 		TreeCache treeCache = new TreeCache(client, zkpath);
 		treeCache.getListenable().addListener(new TreeCacheListener() {
 			public void childEvent(CuratorFramework client, TreeCacheEvent event) throws Exception {
-				System.out.println("TreeCache listener working... event is " + event);
+				System.out.println("TreeCache------当前发生的变化类型为："
+						+ "type=[" + event.getType() + "]"
+						+ ", path=[" + event.getData().getPath() + "]"
+						+ ", data=[" + new String(event.getData().getData()) + "]"
+						+ ", stat=[" + event.getData().getStat() + "]");
 			}
 		});
 		treeCache.start();
