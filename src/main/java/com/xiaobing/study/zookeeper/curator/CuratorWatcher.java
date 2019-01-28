@@ -41,7 +41,7 @@ public class CuratorWatcher {
 				.build();
 
 		client.start();
-
+		
 	}
 
 	public static void closeZkClient() {
