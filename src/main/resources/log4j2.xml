@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration status="info" monitorinterval="60">
+	<Appenders>
+		<Console name="Console" target="SYSTEM_OUT">
+			<PatternLayout pattern="%highlight{%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n}" />
+			<ThresholdFilter level="debug" onMatch="ACCEPT" onMismatch="DENY" />
+		</Console>
+
+		<RollingRandomAccessFile name="InfoFile" fileName="./logs/disconf.log" filePattern="./logs/$${date:yyyy-MM}/disconf-%d{yyyy-MM-dd}-%i.log.gz">
+			<PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
+			<Policies>
+				<TimeBasedTriggeringPolicy interval="1" />
+				<SizeBasedTriggeringPolicy size="256MB" />
+			</Policies>
+			<DefaultRolloverStrategy max="24" />
+		</RollingRandomAccessFile>
+
+		<RandomAccessFile name="ErrorFile" fileName="./logs/disconf-error.log" append="false">
+			<PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
+			<Filters>
+				<ThresholdFilter level="error" onMatch="ACCEPT" onMismatch="DENY" />
+			</Filters>
+		</RandomAccessFile>
+	</Appenders>
+
+	<Loggers>
+		<AsyncLogger name="com.xinbo" level="debug" />
+		<AsyncLogger name="RocketmqClient" level="warn" />
+
+		<AsyncLogger name="新建" level="all" />
+		<AsyncLogger name="读取" level="all" />
+		<AsyncLogger name="更新" level="all" />
+		<AsyncLogger name="删除" level="all" />
+		<AsyncLogger name="调度器" level="all" />
+		
+		<asyncRoot level="info">
+			<AppenderRef ref="Console" />
+			<AppenderRef ref="InfoFile" />
+			<AppenderRef ref="ErrorFile" />
+		</asyncRoot>
+	</Loggers>
+</configuration>
