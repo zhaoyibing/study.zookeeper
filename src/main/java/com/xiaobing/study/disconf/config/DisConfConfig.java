@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Import;
 import com.baidu.disconf.client.DisconfMgrBean;
 import com.baidu.disconf.client.DisconfMgrBeanSecond;
 
+
 @Configuration
 @Import({RedisConfig.class})
 public class DisConfConfig {
