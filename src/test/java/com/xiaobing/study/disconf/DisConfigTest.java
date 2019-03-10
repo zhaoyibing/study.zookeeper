@@ -25,6 +25,7 @@ public class DisConfigTest {
 	public void test1() {
 		System.out.println("2222");
 		System.out.println(disconfMgrBean);
+		System.out.println(redisConfig);
 		System.out.println(redisConfig.getHost());
 		System.out.println(redisConfig.getPort());
 		System.out.println(redisConfig.getDatabase());
