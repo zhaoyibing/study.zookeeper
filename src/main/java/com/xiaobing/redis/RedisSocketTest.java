@@ -15,30 +15,35 @@ import java.nio.charset.StandardCharsets;
 public class RedisSocketTest {
 
 	public static void main(String[] args) throws Exception {
-		String host = "192.168.0.150";
+		//String host = "192.168.0.150";
+		String host = "10.1.120.89";
 		Integer port = 6379;
 		Socket socket = new Socket(host, port);
 		
 		socket.setSoTimeout(10000);
 		
-		OutputStream outputStream = socket.getOutputStream();
-		InputStream inputStream = socket.getInputStream();
 		
 		
 		//getResult(outputStream, inputStream, "*3\\r\\n$3\\r\\nSET\\r\\n$6\\r\\nsocket\\r\\n$10\\r\\nsocketTest\\r\\n");
-		getResult(outputStream, inputStream, "*3\\r\\n$3\\r\\nSET\\r\\n$5\\r\\nmykey\\r\\n$7\\r\\nmyvalue\\r\\n");
+		getResult(socket, "*2\r\n$4\r\nauth\r\n$6\r\n123456\r\n");
+		
+		//getResult(socket, "*3\\r\\n$5\\r\\nSETNX\\r\\n$5\\r\\nmykey\\r\\n$7\\r\\nmyvalue\\r\\n");
+
+		socket.close();
 		
 	}
 	
 
 	
-	public static void getResult(OutputStream outStream, InputStream inStream, String command) throws Exception {
-		System.out.println("\r\nsend command : " + command.replaceAll("\\r\\n", " "));
-		outStream.write(command.getBytes(StandardCharsets.UTF_8));
-		outStream.flush();
+	public static void getResult(Socket socket, String command) throws Exception {
+		//System.out.println("\r\nsend command : " + command.replaceAll("\\\\r\\\\n", " "));
+		OutputStream outputStream = socket.getOutputStream();
+		outputStream.write(command.getBytes(StandardCharsets.UTF_8));
+		outputStream.flush();
 		
+		InputStream inputStream = socket.getInputStream();
 		byte[] bytes = new byte[128];
-        int length = inStream.read(bytes);
+        int length = inputStream.read(bytes);
         String result = new String(bytes, 0, length, StandardCharsets.UTF_8);
         while(result.length() > 0) {
         	int index = result.indexOf("\r\n");

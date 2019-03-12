@@ -52,7 +52,13 @@
 			<artifactId>disconf-client</artifactId>
 			<version>2.6.36</version>
 		</dependency>
-
+		
+		<dependency>
+			<groupId>redis.clients</groupId>
+			<artifactId>jedis</artifactId>
+			<version>2.4.2</version>
+		</dependency>
+		
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-aop</artifactId>
