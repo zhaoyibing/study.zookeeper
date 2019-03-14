@@ -1,12 +1,14 @@
 package com.xiaobing.redis;
 
 import java.io.UnsupportedEncodingException;
+import java.util.HashSet;
+import java.util.Set;
 
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.JedisSentinelPool;
 
-public class JedisClientTest {
+public class JedisClientTest2 {
 	
 	 /**
      * jedis配置对象 .
@@ -16,28 +18,33 @@ public class JedisClientTest {
     /**
      * jedis连接池对象 .
      */
-    public JedisPool jedisPool;
+    public JedisSentinelPool jedisSentinelPool;
 
-    public Integer dbNum = 14;
+    public Integer dbNum = 0;
 	
-	public JedisClientTest(){
+	public JedisClientTest2(){
 	}
 	
 	public void init() {
+		
 		config = new JedisPoolConfig();
 		
-		jedisPool = new JedisPool(config, "10.1.120.89", 6379, 3000, "123456", dbNum);
+	    Set<String> sentinels = new HashSet<String>();
+	    sentinels.add("192.168.0.150:26379");
+	    sentinels.add("192.168.0.150:26380");
+	    sentinels.add("192.168.0.150:26381");
+		jedisSentinelPool = new JedisSentinelPool("redis-master", sentinels, config, "123456");
 	}
 	
 	public Jedis getResource() {
-        Jedis jedis = jedisPool.getResource();
+        Jedis jedis = jedisSentinelPool.getResource();
         //jedis.select(dbNum);
         return jedis;
     }
 	
 	public void returnResource(Jedis jedis) {
         if (jedis != null) {
-            jedisPool.returnResource(jedis);
+        	jedisSentinelPool.returnResource(jedis);
         }
     }
 	
@@ -49,7 +56,7 @@ public class JedisClientTest {
      */
 	public void returnBrokenResource(Jedis jedis) {
 		if (jedis != null) {
-			jedisPool.returnBrokenResource(jedis);
+			jedisSentinelPool.returnBrokenResource(jedis);
 		}
 	}
 	
@@ -73,6 +80,8 @@ public class JedisClientTest {
 		Jedis jedis = null;
 		try {
 			jedis = getResource();
+			System.out.println("sentinel 获取的主库信息：" + jedis.getClient().getHost() + ":" + jedis.getClient().getPort()); 
+			jedis.select(11);
 			lockVal = jedis.setnx(key, value);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -100,17 +109,30 @@ public class JedisClientTest {
 	
 	
 	public static void main(String[] args) throws UnsupportedEncodingException {
-		/*
-		JedisClientTest clientTest = new JedisClientTest();
+		JedisClientTest2 clientTest = new JedisClientTest2();
 		clientTest.init();
-		//System.out.println(clientTest.ping());
 		
-		Long setRes = clientTest.setnx("key1", "hello world!");
-		System.out.println(setRes);
+		int i = 1;
+		while(true) {
+			String key = "key"+i;
+			String value = "value"+i;
+			try {
+				clientTest.setnx(key, value);
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+			System.out.println("set key=" + key);
+			i++;
+			
+			try {
+				Thread.sleep(5000L);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 		
-		String getRes = clientTest.getStr("key1");
-		System.out.println(getRes);
-		*/
+		
+		/*
 		 
 		byte[] btyeArray = new byte[43];    //{((byte)'42'),'51', 13};
 		btyeArray[0] = 42;
@@ -157,6 +179,7 @@ public class JedisClientTest {
 		btyeArray[41] = 33;
 		btyeArray[42] = 13;
 		System.out.println(new String(btyeArray, "UTF-8"));
+		 */
 		
 	}
 	
