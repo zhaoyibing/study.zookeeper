@@ -21,9 +21,6 @@ public class RedisSocketTest {
 		Socket socket = new Socket(host, port);
 		
 		socket.setSoTimeout(10000);
-		
-		
-		
 		//getResult(outputStream, inputStream, "*3\\r\\n$3\\r\\nSET\\r\\n$6\\r\\nsocket\\r\\n$10\\r\\nsocketTest\\r\\n");
 		getResult(socket, "*2\r\n$4\r\nauth\r\n$6\r\n123456\r\n");
 		
