@@ -1,11 +1,13 @@
 package com.xiaobing.redis;
 
-import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.Response;
+import redis.clients.jedis.Transaction;
 
 public class JedisClientTest {
 	
@@ -27,7 +29,11 @@ public class JedisClientTest {
 	public void init() {
 		config = new JedisPoolConfig();
 		
-		jedisPool = new JedisPool(config, "10.1.120.89", 6379, 3000, "123456", dbNum);
+		jedisPool = new JedisPool(config, "localhost", 6379, 3000, "123456", dbNum);
+	}
+	
+	public void destory(){
+		jedisPool.destroy();
 	}
 	
 	public Jedis getResource() {
@@ -99,21 +105,58 @@ public class JedisClientTest {
         return value;
     }
 	
+	public List<Object> exec() {
+		List<Object> execRes = null;
+		Jedis jedis = null;
+		try {
+			jedis = getResource();
+			jedis.watch("");
+			Transaction tr = jedis.multi();
+
+			Response<Long> set1Res = tr.setnx("key1", "value1");
+			Response<String> set2Res = tr.set("key2", "value2");
+			Response<String> set3Res = tr.set("key3", "value3");
+
+			execRes = tr.exec();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			returnBrokenResource(jedis);
+		} finally {
+			returnResource(jedis);
+		}
+		return execRes;
+	}
 	
-	public static void main(String[] args) throws UnsupportedEncodingException {
-		/*
+	
+	public static void main(String[] args) {
 		JedisClientTest clientTest = new JedisClientTest();
 		clientTest.init();
-		//System.out.println(clientTest.ping());
 		
+		List<Object> execRes = clientTest.exec();
+		
+		for (Object object : execRes) {
+			System.out.println(object);
+		}
+		
+		//System.out.println(clientTest.ping());
+		/*
 		Long setRes = clientTest.setnx("key1", "hello world!");
 		System.out.println(setRes);
 		
 		String getRes = clientTest.getStr("key1");
 		System.out.println(getRes);
 		*/
-		 
-		byte[] btyeArray = new byte[43];    //{((byte)'42'),'51', 13};
+		
+		clientTest.destory();
+	}
+	
+	public void testPortal() throws UnsupportedEncodingException {
+		/*
+		 	命令：*3\r\n$5\r\nSETNX\r\n$4\r\nkey1\r\n$12\r\nhello world!\r\n
+		 */
+		System.out.println("命令对应的socket内容：*3\r\n$5\r\nSETNX\r\n$4\r\nkey1\r\n$12\r\nhello world!\r\n" );
+		byte[] btyeArray = new byte[43];
 		btyeArray[0] = 42;
 		btyeArray[1] = 51;
 		btyeArray[2] = 13;
